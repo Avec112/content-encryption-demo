@@ -25,5 +25,9 @@ public class User extends AbstractEntity {
     private Set<Role> roles;
     @Lob
     private String profilePictureUrl;
+    @Lob
+    private String publicKey;
+    @Lob
+    private String privateKey;
 
 }

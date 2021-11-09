@@ -16,6 +16,8 @@ import io.avec.ced.data.entity.User;
 import io.avec.ced.security.AuthenticatedUser;
 import io.avec.ced.views.about.AboutView;
 import io.avec.ced.views.helloworld.HelloWorldView;
+import io.avec.ced.views.masterdetail.MasterDetailView;
+import io.avec.ced.views.user.UserView;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.PostConstruct;
@@ -124,6 +126,8 @@ public class MainLayout extends AppLayout {
     private List<RouterLink> createLinks() {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
                 new MenuItemInfo("Hello World", "la la-globe", HelloWorldView.class),
+                new MenuItemInfo("Sample Person", "la la-columns", MasterDetailView.class),
+                new MenuItemInfo("User", "la la-user", UserView.class),
                 new MenuItemInfo("About", "la la-file", AboutView.class)
         };
         List<RouterLink> links = new ArrayList<>();
