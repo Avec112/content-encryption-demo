@@ -36,6 +36,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 @SpringComponent
@@ -77,14 +78,14 @@ public class DataGenerator {
             alice.setProfilePictureUrl( // https://unsplash.com/s/photos/user-profile
                     "https://i.pravatar.cc/128?img=9");
 //                    "https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=128&h=128&q=80");
-            alice.setRoles(Collections.singleton(Role.ADMIN));
+            alice.setRoles(Set.of(Role.ADMIN, Role.MANAGER));
             generateAndAddRsaKeyPair(alice, KeySize.BIT_4096);
             managerRepository.save(alice);
 
             log.info("Generating secret persons");
-            final Optional<RSAPublicKey> managerPublicKey = KeyUtils.publicKeyFromString(alice.getPublicKey());
+            final Optional<RSAPublicKey> maybeAlicePublicKey = KeyUtils.publicKeyFromString(alice.getPublicKey());
 
-            managerPublicKey.ifPresent(manPublicKey -> {
+            maybeAlicePublicKey.ifPresent(alicePublicKey -> {
 
                 ObjectMapper mapper = new ObjectMapper(); // json mapper
                 Fairy fairy = Fairy.create(); // Jfairy dummy data
@@ -106,7 +107,7 @@ public class DataGenerator {
                         Password superheroPassword = PasswordUtils.generatePassword();
 
                         // encrypt superhero password with managers public key
-                        CipherText superheroPasswordEncrypted = CryptoUtils.rsaEncrypt(new PlainText(superheroPassword.getValue()), manPublicKey); // RSA encrypted password
+                        CipherText superheroPasswordEncrypted = CryptoUtils.rsaEncrypt(new PlainText(superheroPassword.getValue()), alicePublicKey); // RSA encrypted password
 
                         // Create Superhero JSON from DTO
                         String superheroJson = mapper.writeValueAsString(superheroDTO);

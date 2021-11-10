@@ -29,7 +29,7 @@ public class Manager extends AbstractEntity {
     @Lob
     private String privateKey;
 
-    @OneToMany(mappedBy = "managers", orphanRemoval = true)
+    @OneToMany(mappedBy = "manager", orphanRemoval = true)
     private List<SuperheroManager> superheroManagers = new ArrayList<>();
 
 }

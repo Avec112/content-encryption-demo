@@ -18,7 +18,7 @@ public class SuperheroManager extends AbstractEntity {
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
-    private Manager managers;
+    private Manager manager;
 
     @Lob
     private String rsaEncryptedPassword; // base64 encoded

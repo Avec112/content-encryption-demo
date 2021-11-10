@@ -54,13 +54,13 @@ public class SuperHeroView extends VerticalLayout {
     @PostConstruct
     private void init() {
         setSizeFull();
+        add(grid);
         grid.setItems(query ->  service.list(
                         PageRequest.of(query.getPage(), query.getPageSize(), VaadinSpringDataHelpers.toSpringDataSort(query)))
                 .stream());
 
         grid.addColumn("nickname").setAutoWidth(true);
 
-        add(grid);
 
 
         grid.addItemClickListener(event -> {
@@ -73,7 +73,7 @@ public class SuperHeroView extends VerticalLayout {
 
                 // Do Manager have access to Superhero info?
                 final String nickname = superhero.getNickname();
-                final Optional<SuperheroManager> maybeSuperheroManager = superheroManagerRepository.findBySuperheroNicknameEqualsIgnoreCaseAndManagers(nickname, manager);
+                final Optional<SuperheroManager> maybeSuperheroManager = superheroManagerRepository.findBySuperheroNicknameEqualsIgnoreCaseAndManager(nickname, manager);
                 maybeSuperheroManager.ifPresentOrElse(superheroManager -> {
                     final SuperheroDTO dto;
                     try {

@@ -5,6 +5,10 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import io.avec.ced.data.entity.Manager;
 import io.avec.ced.data.service.ManagerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +22,7 @@ import java.util.Optional;
 public class AuthenticatedUser {
 
     private final ManagerRepository managerRepository;
+    private final AuthenticationManager authenticationManager;
 
     private UserDetails getAuthenticatedUser() {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -42,6 +47,18 @@ public class AuthenticatedUser {
         UI.getCurrent().getPage().setLocation(SecurityConfiguration.LOGOUT_URL);
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
         logoutHandler.logout(VaadinServletRequest.getCurrent().getHttpServletRequest(), null, null);
+    }
+
+    public void reauthenticate(String password) {
+        final Optional<Manager> optionalManager = get();
+        Manager manager = optionalManager.orElseThrow(() -> new IllegalStateException("You must sign in to the application."));
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(manager.getUsername(), password);
+
+        final Authentication authentication = authenticationManager.authenticate(token);
+        if(!authentication.isAuthenticated()) {
+            throw new BadCredentialsException("Could not authenticate principal " + manager.getUsername() + " with given credentials");
+        }
+
     }
 
 }

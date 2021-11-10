@@ -16,6 +16,7 @@ import io.avec.ced.data.entity.Manager;
 import io.avec.ced.security.AuthenticatedUser;
 import io.avec.ced.views.manager.ManagerView;
 import io.avec.ced.views.superhero.SuperHeroView;
+import io.avec.ced.views.superhero.SuperheroManagerView;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.PostConstruct;
@@ -134,7 +135,9 @@ public class MainLayout extends AppLayout {
     private List<RouterLink> createLinks() {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
                 new MenuItemInfo("Manager", "la la-user", ManagerView.class),
-                new MenuItemInfo("Superhero", "la la-columns", SuperHeroView.class)
+                new MenuItemInfo("Superhero", "la la-columns", SuperHeroView.class),
+                new MenuItemInfo("Superhero Managers", "la la-lock", SuperheroManagerView.class)
+
         };
         List<RouterLink> links = new ArrayList<>();
         for (MenuItemInfo menuItemInfo : menuItems) {
