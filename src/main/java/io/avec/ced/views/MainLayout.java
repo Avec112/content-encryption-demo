@@ -12,12 +12,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
-import io.avec.ced.data.entity.User;
+import io.avec.ced.data.entity.Manager;
 import io.avec.ced.security.AuthenticatedUser;
-import io.avec.ced.views.about.AboutView;
-import io.avec.ced.views.helloworld.HelloWorldView;
-import io.avec.ced.views.masterdetail.MasterDetailView;
-import io.avec.ced.views.user.UserView;
+import io.avec.ced.views.manager.ManagerView;
+import io.avec.ced.views.superhero.SuperHeroView;
 import lombok.RequiredArgsConstructor;
 
 import javax.annotation.PostConstruct;
@@ -32,9 +30,19 @@ import java.util.Optional;
 @PageTitle("Main")
 public class MainLayout extends AppLayout {
 
+    // java 17
     public record MenuItemInfo(String text,
                                String iconClass,
                                Class<? extends Component> view) {}
+
+    // java < 17
+//    @Getter
+//    @RequiredArgsConstructor
+//    public static class MenuItemInfo {
+//        private final String text;
+//        private final String iconClass;
+//        private final Class<? extends Component> view;
+//    }
 
     private H1 viewTitle;
 
@@ -59,29 +67,29 @@ public class MainLayout extends AppLayout {
         viewTitle.addClassNames("m-0", "text-l");
 
 
-        final HorizontalLayout user = userLayout();
-        user.getStyle().set("margin-left", "auto").set("padding-right", "10px");
-        Header header = new Header(toggle, viewTitle, user);
+        final HorizontalLayout userLayout = managerLayout();
+        userLayout.getStyle().set("margin-left", "auto").set("padding-right", "10px");
+        Header header = new Header(toggle, viewTitle, userLayout);
         header.addClassNames("bg-base", "border-b", "border-contrast-10", "box-border", "flex", "h-xl", "items-center",
                 "w-full");
         return header;
     }
 
-    private HorizontalLayout userLayout() {
+    private HorizontalLayout managerLayout() {
         HorizontalLayout layout = new HorizontalLayout();
 
-        Optional<User> maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            User user = maybeUser.get();
+        Optional<Manager> maybeManager = authenticatedUser.get();
+        if (maybeManager.isPresent()) {
+            Manager manager = maybeManager.get();
 
-            Avatar avatar = new Avatar(user.getName(), user.getProfilePictureUrl());
+            Avatar avatar = new Avatar(manager.getName(), manager.getProfilePictureUrl());
             avatar.addClassNames("me-xs");
 
-            ContextMenu userMenu = new ContextMenu(avatar);
-            userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> authenticatedUser.logout());
+            ContextMenu managerMenu = new ContextMenu(avatar);
+            managerMenu.setOpenOnClick(true);
+            managerMenu.addItem("Logout", e -> authenticatedUser.logout());
 
-            Span name = new Span(user.getName());
+            Span name = new Span(manager.getName());
             name.addClassNames("font-medium", "text-s", "text-secondary");
 
             layout.add(avatar, name);
@@ -125,10 +133,8 @@ public class MainLayout extends AppLayout {
 
     private List<RouterLink> createLinks() {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
-                new MenuItemInfo("Hello World", "la la-globe", HelloWorldView.class),
-                new MenuItemInfo("Sample Person", "la la-columns", MasterDetailView.class),
-                new MenuItemInfo("User", "la la-user", UserView.class),
-                new MenuItemInfo("About", "la la-file", AboutView.class)
+                new MenuItemInfo("Manager", "la la-user", ManagerView.class),
+                new MenuItemInfo("Superhero", "la la-columns", SuperHeroView.class)
         };
         List<RouterLink> links = new ArrayList<>();
         for (MenuItemInfo menuItemInfo : menuItems) {
@@ -156,33 +162,6 @@ public class MainLayout extends AppLayout {
 
         link.add(icon, text);
         return link;
-    }
-
-    private Footer createFooter() {
-        Footer layout = new Footer();
-        layout.addClassNames("flex", "items-center", "my-s", "px-m", "py-xs");
-
-        Optional<User> maybeUser = authenticatedUser.get();
-        if (maybeUser.isPresent()) {
-            User user = maybeUser.get();
-
-            Avatar avatar = new Avatar(user.getName(), user.getProfilePictureUrl());
-            avatar.addClassNames("me-xs");
-
-            ContextMenu userMenu = new ContextMenu(avatar);
-            userMenu.setOpenOnClick(true);
-            userMenu.addItem("Logout", e -> authenticatedUser.logout());
-
-            Span name = new Span(user.getName());
-            name.addClassNames("font-medium", "text-s", "text-secondary");
-
-            layout.add(avatar, name);
-        } else {
-            Anchor loginLink = new Anchor("login", "Sign in");
-            layout.add(loginLink);
-        }
-
-        return layout;
     }
 
     @Override

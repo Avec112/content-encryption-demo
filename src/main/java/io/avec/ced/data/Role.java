@@ -1,7 +1,8 @@
 package io.avec.ced.data;
 
 public enum Role {
-    USER("user"), ADMIN("admin");
+    MANAGER("manager"),
+    ADMIN("admin");
 
     private final String roleName;
 

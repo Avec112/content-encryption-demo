@@ -10,14 +10,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication
 @Theme(value = "myapp")
-@PWA(name = "My App", shortName = "My App", offlineResources = {"images/logo.png"}, offlinePath = "offline.html")
+@PWA(name = "Superhero", shortName = "Superhero", offlineResources = {"images/logo.png"}, offlinePath = "offline.html")
 @NpmPackage(value = "line-awesome", version = "1.3.0")
-@NpmPackage(value = "leaflet", version = "^1.7.1")
-@NpmPackage(value = "@types/leaflet", version = "^1.5.23")
-public class ContentEncryptionDemoApplication extends SpringBootServletInitializer implements AppShellConfigurator {
+public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        SpringApplication.run(ContentEncryptionDemoApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 }

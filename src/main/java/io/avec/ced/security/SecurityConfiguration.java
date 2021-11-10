@@ -25,6 +25,7 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+//        http.authorizeRequests().antMatchers("/h2-console/**").permitAll();
         super.configure(http);
         setLoginView(http, LoginView.class, LOGOUT_URL);
     }
@@ -32,6 +33,10 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         super.configure(web);
-        web.ignoring().antMatchers("/images/*.png");
+        web.ignoring()
+                .antMatchers(
+                        "/images/*.png",
+                        "/h2-console/**"
+                );
     }
 }

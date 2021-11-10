@@ -42,8 +42,8 @@ build/
 
 ### VS Code ###
 .vscode/
-.idea\
-node_modules\
-target\
+.idea/
 content-encryption-demo.iml
-/.npmrc
+.npmrc/
+.jpb/
+jpb-settings.xml

@@ -1,18 +1,18 @@
 package io.avec.ced.data.service;
 
-import io.avec.ced.data.entity.SamplePerson;
+import io.avec.ced.data.entity.Manager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.vaadin.artur.helpers.CrudService;
 
 @RequiredArgsConstructor
 @Service
-public class SamplePersonService extends CrudService<SamplePerson, Integer> {
+public class ManagerService extends CrudService<Manager, Integer> {
 
-    private final SamplePersonRepository repository;
+    private final ManagerRepository repository;
 
     @Override
-    protected SamplePersonRepository getRepository() {
+    protected ManagerRepository getRepository() {
         return repository;
     }
 

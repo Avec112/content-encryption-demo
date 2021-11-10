@@ -28,9 +28,12 @@ public abstract class AbstractEntity {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof AbstractEntity other)) {
+//        if (!(obj instanceof AbstractEntity)) { // Java < 17
+        if (!(obj instanceof AbstractEntity other)) { // Java 17
             return false; // null or other class
         }
+
+//        AbstractEntity other = (AbstractEntity) obj; // Java < 17
 
         if (id != null) {
             return id.equals(other.id);

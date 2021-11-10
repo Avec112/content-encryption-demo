@@ -2,8 +2,8 @@ package io.avec.ced.security;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
-import io.avec.ced.data.entity.User;
-import io.avec.ced.data.service.UserRepository;
+import io.avec.ced.data.entity.Manager;
+import io.avec.ced.data.service.ManagerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,23 +17,25 @@ import java.util.Optional;
 @Component
 public class AuthenticatedUser {
 
-    private final UserRepository userRepository;
+    private final ManagerRepository managerRepository;
 
     private UserDetails getAuthenticatedUser() {
         SecurityContext context = SecurityContextHolder.getContext();
         Object principal = context.getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails userDetails) {
+        if (principal instanceof UserDetails userDetails) { // Java 17
+//        if (principal instanceof UserDetails) { // Java < 17
+//            UserDetails userDetails = (UserDetails) context.getAuthentication().getPrincipal();
             return userDetails;
         }
         return null;
     }
 
-    public Optional<User> get() {
+    public Optional<Manager> get() {
         UserDetails details = getAuthenticatedUser();
         if (details == null) {
             return Optional.empty();
         }
-        return Optional.of(userRepository.findByUsername(details.getUsername()));
+        return Optional.of(managerRepository.findByUsername(details.getUsername()));
     }
 
     public void logout() {
