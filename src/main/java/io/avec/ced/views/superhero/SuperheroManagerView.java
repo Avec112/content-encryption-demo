@@ -17,6 +17,7 @@ import io.avec.ced.security.AuthenticatedUser;
 import io.avec.ced.views.MainLayout;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 
@@ -30,6 +31,9 @@ import java.util.Optional;
 @Route(value = "superheroacl", layout = MainLayout.class)
 @RolesAllowed("manager")
 public class SuperheroManagerView extends VerticalLayout {
+
+    @Value("${superhero.acl.authenticationRequired}")
+    private boolean authenticationRequired;
 
     private final Grid<SuperheroManager> grid = new Grid<>(SuperheroManager.class, false);
     private final SuperheroManagerService service;
@@ -53,28 +57,15 @@ public class SuperheroManagerView extends VerticalLayout {
         }, () -> Notification.show("You do not have access to any Superhero"));
 
         grid.addItemClickListener(event -> {
-//            Notification.show("User clicked row with ID = " + event.getItem().getId());
-            VerticalLayout loginLayout = new VerticalLayout();
-            Dialog dialog = new Dialog(loginLayout);
-            PasswordField password = new PasswordField("Password");
-            password.focus();
-            loginLayout.add(password);
 
-            password.addKeyUpListener(Key.ENTER, upEvent -> {
-                try {
-                    authenticatedUser.reauthenticate(password.getValue());
-                    dialog.close();
-                    displayManagerSelection();
-                } catch(BadCredentialsException e) {
-                    password.setValue("");
-                    password.setErrorMessage(e.getMessage());
-                    password.setInvalid(true);
-                    password.focus();
-//                    Notification.show(e.getMessage());
-                }
+            if (authenticationRequired) {
+                //            Notification.show("User clicked row with ID = " + event.getItem().getId());
+                Dialog dialog = new AuthenticationDialog(authenticatedUser, this::displayManagerSelection);
+                dialog.open();
+            } else {
+                displayManagerSelection();
+            }
 
-            });
-            dialog.open();
         });
     }
 

@@ -5,6 +5,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import io.avec.ced.data.entity.Manager;
 import io.avec.ced.data.service.ManagerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,6 +60,11 @@ public class AuthenticatedUser {
             throw new BadCredentialsException("Could not authenticate principal " + manager.getUsername() + " with given credentials");
         }
 
+    }
+
+    public boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
     }
 
 }

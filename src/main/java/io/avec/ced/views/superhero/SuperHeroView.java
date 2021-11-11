@@ -29,6 +29,7 @@ import io.avec.ced.security.AuthenticatedUser;
 import io.avec.ced.views.MainLayout;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 
@@ -45,6 +46,10 @@ import java.util.Optional;
 //@RolesAllowed("admin")
 @AnonymousAllowed
 public class SuperHeroView extends VerticalLayout {
+
+    @Value("${superhero.decrypt.authenticationRequired}")
+    private boolean authenticationRequired;
+
     private final Grid<Superhero> grid = new Grid<>(Superhero.class, false);
     private final SuperheroService service;
     private final SuperheroManagerRepository superheroManagerRepository;
@@ -61,55 +66,66 @@ public class SuperHeroView extends VerticalLayout {
 
         grid.addColumn("nickname").setAutoWidth(true);
 
-
-
         grid.addItemClickListener(event -> {
-            Optional<Manager> maybeManager = authenticatedUser.get();
-            maybeManager.ifPresentOrElse(manager -> {
-                final Superhero superhero = event.getItem();
-
-                VerticalLayout layout = new VerticalLayout(new H1(superhero.getNickname()));
-                ObjectMapper mapper = new ObjectMapper();
-
-                // Do Manager have access to Superhero info?
-                final String nickname = superhero.getNickname();
-                final Optional<SuperheroManager> maybeSuperheroManager = superheroManagerRepository.findBySuperheroNicknameEqualsIgnoreCaseAndManager(nickname, manager);
-                maybeSuperheroManager.ifPresentOrElse(superheroManager -> {
-                    final SuperheroDTO dto;
-                    try {
-
-                        // lookup managers private key
-                        final String secretPassword = env.getProperty("secret.password");
-                        final PlainText managerPrivateKeyPlainText = CryptoUtils.aesDecrypt(new CipherText(manager.getPrivateKey()), new Password(secretPassword));
-                        final Optional<RSAPrivateKey> maybeManagersPrivateKey = KeyUtils.privateKeyFromString(managerPrivateKeyPlainText.getValue());
-                        final PrivateKey managersPrivateKey = maybeManagersPrivateKey.orElseThrow();
-
-                        // decrypt Superhero password with managers private key
-                        final String superheroEncryptedPassword = superheroManager.getRsaEncryptedPassword();
-                        final PlainText superheroPasswordPlainText = CryptoUtils.rsaDecrypt(new CipherText(superheroEncryptedPassword), managersPrivateKey);
-
-                        // decrypt encrypted json with superheroPassword
-                        final String encryptedJson = superhero.getEncryptedJson();
-                        final PlainText jsonPlainText = CryptoUtils.aesDecrypt(new CipherText(encryptedJson), new Password(superheroPasswordPlainText.getValue()));
-
-                        // map json to dto
-                        dto = mapper.readValue(jsonPlainText.getValue(), SuperheroDTO.class);
-
-                        layout.add(createSuperheroLayout(dto));
-
-                        Dialog dialog = new Dialog(layout);
-                        dialog.open();
-                    } catch (JsonProcessingException e) {
-                        Notification.show("Could not convert JSON to Object", 4000, Notification.Position.MIDDLE);
-                    } catch (Exception e) {
-                        Notification.show(e.getMessage(), 4000, Notification.Position.MIDDLE);
-                    }
-                }, () -> Notification.show("User do not have access to " + nickname, 4000, Notification.Position.MIDDLE));
-
-            }, () -> Notification.show("Please login", 4000, Notification.Position.MIDDLE));
-//            }, () -> UI.getCurrent().navigate(LoginView.class));
+            if(authenticatedUser.isAuthenticated()) {
+                if (authenticationRequired) {
+                    //            Notification.show("User clicked row with ID = " + event.getItem().getId());
+                    Dialog dialog = new AuthenticationDialog(authenticatedUser, () -> displaySuperheroDetails(event.getItem()));
+                    dialog.open();
+                } else { // no authentication required
+                    displaySuperheroDetails(event.getItem());
+                }
+            } else {
+                Notification.show("User not authenticated. Please sign in.");
+            }
 
         });
+    }
+
+    private void displaySuperheroDetails(Superhero superhero) {
+        Optional<Manager> maybeManager = authenticatedUser.get();
+        maybeManager.ifPresentOrElse(manager -> {
+
+            VerticalLayout layout = new VerticalLayout(new H1(superhero.getNickname()));
+            ObjectMapper mapper = new ObjectMapper();
+
+            // Do Manager have access to Superhero info?
+            final String nickname = superhero.getNickname();
+            final Optional<SuperheroManager> maybeSuperheroManager = superheroManagerRepository.findBySuperheroNicknameEqualsIgnoreCaseAndManager(nickname, manager);
+            maybeSuperheroManager.ifPresentOrElse(superheroManager -> {
+                final SuperheroDTO dto;
+                try {
+
+                    // lookup managers private key
+                    final String secretPassword = env.getProperty("secret.password");
+                    final PlainText managerPrivateKeyPlainText = CryptoUtils.aesDecrypt(new CipherText(manager.getPrivateKey()), new Password(secretPassword));
+                    final Optional<RSAPrivateKey> maybeManagersPrivateKey = KeyUtils.privateKeyFromString(managerPrivateKeyPlainText.getValue());
+                    final PrivateKey managersPrivateKey = maybeManagersPrivateKey.orElseThrow();
+
+                    // decrypt Superhero password with managers private key
+                    final String superheroEncryptedPassword = superheroManager.getRsaEncryptedPassword();
+                    final PlainText superheroPasswordPlainText = CryptoUtils.rsaDecrypt(new CipherText(superheroEncryptedPassword), managersPrivateKey);
+
+                    // decrypt encrypted json with superheroPassword
+                    final String encryptedJson = superhero.getEncryptedJson();
+                    final PlainText jsonPlainText = CryptoUtils.aesDecrypt(new CipherText(encryptedJson), new Password(superheroPasswordPlainText.getValue()));
+
+                    // map json to dto
+                    dto = mapper.readValue(jsonPlainText.getValue(), SuperheroDTO.class);
+
+                    layout.add(createSuperheroLayout(dto));
+
+                    Dialog dialog = new Dialog(layout);
+                    dialog.open();
+                } catch (JsonProcessingException e) {
+                    Notification.show("Could not convert JSON to Object", 4000, Notification.Position.MIDDLE);
+                } catch (Exception e) {
+                    Notification.show(e.getMessage(), 4000, Notification.Position.MIDDLE);
+                }
+            }, () -> Notification.show("User do not have access to " + nickname, 4000, Notification.Position.MIDDLE));
+
+        }, () -> Notification.show("Please login", 4000, Notification.Position.MIDDLE));
+
     }
 
     private VerticalLayout createSuperheroLayout(SuperheroDTO dto) {
