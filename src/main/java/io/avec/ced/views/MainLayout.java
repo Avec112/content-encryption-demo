@@ -136,7 +136,7 @@ public class MainLayout extends AppLayout {
         MenuItemInfo[] menuItems = new MenuItemInfo[]{ //
                 new MenuItemInfo("Manager", "la la-user", ManagerView.class),
                 new MenuItemInfo("Superhero", "la la-columns", SuperHeroView.class),
-                new MenuItemInfo("Superhero Managers", "la la-lock", SuperheroManagerView.class)
+                new MenuItemInfo("ACL Superhero", "la la-lock", SuperheroManagerView.class)
 
         };
         List<RouterLink> links = new ArrayList<>();
