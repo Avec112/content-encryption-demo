@@ -82,7 +82,7 @@ public class SuperHeroView extends VerticalLayout {
                     displaySuperheroDetailsOptionalToggle(event.getItem());
                 }
             } else {
-                Notification.show("User not authenticated. Please sign in.");
+                Notification.show("User not authenticated. Please sign in.", 3000, Notification.Position.TOP_CENTER);
             }
 
         });
@@ -160,11 +160,11 @@ public class SuperHeroView extends VerticalLayout {
         lastname.setValue(dto.getLastname());
         form.add(lastname);
 
-        final DatePicker dob = new DatePicker("Last name");
+        final DatePicker dob = new DatePicker("Date of birth");
         dob.setValue(dto.getDateOfBirth());
         form.add(dob);
 
-        final TextField country = new TextField("Country");
+        final TextField country = new TextField("Nationality");
         country.setValue(dto.getCountry());
         form.add(country);
 

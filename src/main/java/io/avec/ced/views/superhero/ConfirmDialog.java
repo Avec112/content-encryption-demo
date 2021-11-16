@@ -1,7 +1,6 @@
 package io.avec.ced.views.superhero;
 
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.KeyModifier;
 import com.vaadin.flow.component.Shortcuts;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -21,7 +20,7 @@ public class ConfirmDialog extends Dialog {
         });
 
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
-        Shortcuts.addShortcutListener(confirmButton, confirmButton::click, Key.ENTER, KeyModifier.CONTROL);
+        Shortcuts.addShortcutListener(confirmButton, confirmButton::click, Key.ENTER);
 
         Button cancelButton = new Button("Cancel", e -> close());
         cancelButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_ERROR);
