@@ -3,6 +3,7 @@ package io.avec.ced.views.superhero;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
@@ -45,6 +46,7 @@ import java.util.Optional;
 @RouteAlias(value = "", layout = MainLayout.class)
 //@RolesAllowed("admin")
 @AnonymousAllowed
+@CssImport(value="./themes/myapp/views/dialog-styles.css", themeFor = "vaadin-dialog-overlay")
 public class SuperHeroView extends VerticalLayout {
 
     @Value("${superhero.decrypt.authenticationRequired}")
@@ -116,6 +118,7 @@ public class SuperHeroView extends VerticalLayout {
                     layout.add(createSuperheroLayout(dto));
 
                     Dialog dialog = new Dialog(layout);
+                    dialog.getElement().setAttribute("theme", "secret-dialog");
                     dialog.open();
                 } catch (JsonProcessingException e) {
                     Notification.show("Could not convert JSON to Object", 4000, Notification.Position.MIDDLE);

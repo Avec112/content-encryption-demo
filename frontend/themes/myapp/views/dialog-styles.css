@@ -1,0 +1,3 @@
+:host([theme~="secret-dialog"]) [part="overlay"] {
+    border: 3px solid red;
+}
