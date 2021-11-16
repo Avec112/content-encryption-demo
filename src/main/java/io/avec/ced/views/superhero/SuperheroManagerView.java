@@ -1,12 +1,10 @@
 package io.avec.ced.views.superhero;
 
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
@@ -19,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
@@ -32,8 +29,8 @@ import java.util.Optional;
 @RolesAllowed("manager")
 public class SuperheroManagerView extends VerticalLayout {
 
-    @Value("${superhero.acl.authenticationRequired}")
-    private boolean authenticationRequired;
+    @Value("${toggle.superhero.acl.authenticationRequired}")
+    private boolean toggleAuthenticationRequired;
 
     private final Grid<SuperheroManager> grid = new Grid<>(SuperheroManager.class, false);
     private final SuperheroManagerService service;
@@ -58,8 +55,7 @@ public class SuperheroManagerView extends VerticalLayout {
 
         grid.addItemClickListener(event -> {
 
-            if (authenticationRequired) {
-                //            Notification.show("User clicked row with ID = " + event.getItem().getId());
+            if (toggleAuthenticationRequired) {
                 Dialog dialog = new AuthenticationDialog(authenticatedUser, this::displayManagerSelection);
                 dialog.open();
             } else {

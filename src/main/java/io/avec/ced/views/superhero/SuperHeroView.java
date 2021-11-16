@@ -6,8 +6,9 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
@@ -49,8 +50,11 @@ import java.util.Optional;
 @CssImport(value="./themes/myapp/views/dialog-styles.css", themeFor = "vaadin-dialog-overlay")
 public class SuperHeroView extends VerticalLayout {
 
-    @Value("${superhero.decrypt.authenticationRequired}")
-    private boolean authenticationRequired;
+    @Value("${toggle.superhero.decrypt.authenticationRequired:true}")
+    private boolean toggleAuthenticationRequired;
+
+    @Value("${toggle.superhero.decrypt.confirmNobodyIsLooking:true}")
+    private boolean toggleCheckNoOneIsLooking;
 
     private final Grid<Superhero> grid = new Grid<>(Superhero.class, false);
     private final SuperheroService service;
@@ -70,12 +74,12 @@ public class SuperHeroView extends VerticalLayout {
 
         grid.addItemClickListener(event -> {
             if(authenticatedUser.isAuthenticated()) {
-                if (authenticationRequired) {
+                if (toggleAuthenticationRequired) {
                     //            Notification.show("User clicked row with ID = " + event.getItem().getId());
-                    Dialog dialog = new AuthenticationDialog(authenticatedUser, () -> displaySuperheroDetails(event.getItem()));
+                    Dialog dialog = new AuthenticationDialog(authenticatedUser, () -> displaySuperheroDetailsOptionalToggle(event.getItem()));
                     dialog.open();
                 } else { // no authentication required
-                    displaySuperheroDetails(event.getItem());
+                    displaySuperheroDetailsOptionalToggle(event.getItem());
                 }
             } else {
                 Notification.show("User not authenticated. Please sign in.");
@@ -84,18 +88,33 @@ public class SuperHeroView extends VerticalLayout {
         });
     }
 
+    private void displaySuperheroDetailsOptionalToggle(Superhero superhero) {
+
+        if(toggleCheckNoOneIsLooking) {
+            Dialog dialog = new ConfirmDialog(() -> displaySuperheroDetails(superhero));
+            dialog.open();
+        } else {
+            displaySuperheroDetails(superhero);
+        }
+
+    }
+
     private void displaySuperheroDetails(Superhero superhero) {
         Optional<Manager> maybeManager = authenticatedUser.get();
         maybeManager.ifPresentOrElse(manager -> {
 
-            VerticalLayout layout = new VerticalLayout(new H1(superhero.getNickname()));
+            HorizontalLayout titleLayout = new HorizontalLayout(new H2(superhero.getNickname()));
+            titleLayout.setWidthFull();
+            titleLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+
+            VerticalLayout layout = new VerticalLayout(titleLayout);
             ObjectMapper mapper = new ObjectMapper();
 
             // Do Manager have access to Superhero info?
             final String nickname = superhero.getNickname();
             final Optional<SuperheroManager> maybeSuperheroManager = superheroManagerRepository.findBySuperheroNicknameEqualsIgnoreCaseAndManager(nickname, manager);
             maybeSuperheroManager.ifPresentOrElse(superheroManager -> {
-                final SuperheroDTO dto;
+
                 try {
 
                     // lookup managers private key
@@ -113,7 +132,7 @@ public class SuperHeroView extends VerticalLayout {
                     final PlainText jsonPlainText = CryptoUtils.aesDecrypt(new CipherText(encryptedJson), new Password(superheroPasswordPlainText.getValue()));
 
                     // map json to dto
-                    dto = mapper.readValue(jsonPlainText.getValue(), SuperheroDTO.class);
+                    final SuperheroDTO dto = mapper.readValue(jsonPlainText.getValue(), SuperheroDTO.class);
 
                     layout.add(createSuperheroLayout(dto));
 
@@ -128,7 +147,6 @@ public class SuperHeroView extends VerticalLayout {
             }, () -> Notification.show("User do not have access to " + nickname, 4000, Notification.Position.MIDDLE));
 
         }, () -> Notification.show("Please login", 4000, Notification.Position.MIDDLE));
-
     }
 
     private VerticalLayout createSuperheroLayout(SuperheroDTO dto) {

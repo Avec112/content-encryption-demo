@@ -1,9 +1,8 @@
 package io.avec.ced.views.superhero;
 
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.function.SerializableRunnable;
@@ -15,17 +14,15 @@ public class AuthenticationDialog extends Dialog {
     public AuthenticationDialog(AuthenticatedUser authenticatedUser, SerializableRunnable callWhenAuthenticated) {
 
         VerticalLayout loginLayout = new VerticalLayout();
-        PasswordField password = new PasswordField("Password");
+        PasswordField password = new PasswordField();
+        password.setPlaceholder("User password");
         password.focus();
-
-//        Button button = new Button("Authenticate", e -> authenticate(authenticatedUser, callWhenAuthenticated, password));
 
         password.addKeyUpListener(Key.ENTER, upEvent -> {
             authenticate(authenticatedUser, callWhenAuthenticated, password);
         });
 
-//        loginLayout.add(password, button);
-        loginLayout.add(password);
+        loginLayout.add(new Paragraph("Authentication required"), password);
         add(loginLayout);
     }
 
@@ -35,12 +32,15 @@ public class AuthenticationDialog extends Dialog {
             close();
             callWhenAuthenticated.run();
         } catch (BadCredentialsException e) {
-            password.setValue("");
-            password.setErrorMessage(e.getMessage());
-            password.setInvalid(true);
-            password.focus();
-            //                    Notification.show(e.getMessage());
+            passwordErrorException(password, e);
         }
+    }
+
+    private void passwordErrorException(PasswordField password, BadCredentialsException e) {
+        password.setValue("");
+        password.setErrorMessage(e.getMessage());
+        password.setInvalid(true);
+        password.focus();
     }
 
 }
