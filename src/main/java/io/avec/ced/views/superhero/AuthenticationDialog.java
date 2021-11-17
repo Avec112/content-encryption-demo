@@ -18,7 +18,7 @@ public class AuthenticationDialog extends Dialog {
         password.setPlaceholder("User password");
         password.focus();
 
-        password.addKeyUpListener(Key.ENTER, upEvent -> {
+        password.addKeyPressListener(Key.ENTER, e -> {
             authenticate(authenticatedUser, callWhenAuthenticated, password);
         });
 

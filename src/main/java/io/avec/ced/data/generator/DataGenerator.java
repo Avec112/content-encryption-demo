@@ -54,7 +54,7 @@ public class DataGenerator {
                                       ManagerRepository managerRepository) {
         return args -> {
 
-            int superheroCount = 20;
+            int superheroCount = 10;
 
             log.info("Generating demo data");
 

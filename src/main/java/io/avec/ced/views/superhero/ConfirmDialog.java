@@ -15,8 +15,8 @@ public class ConfirmDialog extends Dialog {
 
     public ConfirmDialog(SerializableRunnable callWhenConfirmed) {
         Button confirmButton = new Button("Confirm", e -> {
-            close();
             callWhenConfirmed.run();
+            close();
         });
 
         confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
